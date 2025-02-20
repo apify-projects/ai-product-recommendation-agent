@@ -125,3 +125,16 @@ async def tool_scrape_amazon_reviews(product_urls: list[ProductUrl], max_reviews
         )
 
     return reviews
+
+
+@tool
+def tool_url_to_category_or_product_url(url: str) -> CategoryOrProductUrl:
+    """Tool to convert a URL to a CategoryOrProductUrl.
+
+    Args:
+        url (str): The URL to convert.
+
+    Returns:
+        CategoryOrProductUrl: The CategoryOrProductUrl instance.
+    """
+    return CategoryOrProductUrl(url=url, method='GET')
