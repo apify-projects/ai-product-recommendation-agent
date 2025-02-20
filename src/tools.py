@@ -125,3 +125,15 @@ async def tool_scrape_amazon_reviews(product_urls: list[ProductUrl], max_reviews
         )
 
     return reviews
+
+
+@tool
+def tool_get_prompt_for_amazon_product_list_plain_url(query: str) -> str:
+    """Tool to get the right prompt for the Amazon product list URL.
+
+    Args:
+        query (str): User query.
+    Returns:
+        str: Prompt for the Amazon product list URL. 
+    """
+    return f"Generate an Amazon search URL for {query}, including relevant filters like price if mentioned."

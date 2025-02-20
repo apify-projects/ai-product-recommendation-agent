@@ -16,7 +16,7 @@ from langgraph.prebuilt import create_react_agent
 
 from src.models import AgentStructuredOutput
 from src.ppe_utils import charge_for_actor_start, charge_for_model_tokens, get_all_messages_total_tokens
-from src.tools import tool_scrape_amazon_products, tool_scrape_amazon_reviews
+from src.tools import tool_get_prompt_for_amazon_product_list_plain_url, tool_scrape_amazon_products, tool_scrape_amazon_reviews
 from src.utils import log_state
 
 SYSTEM_PROMPT = """
@@ -58,7 +58,7 @@ async def main() -> None:
 
         # Create the ReAct agent graph
         # see https://langchain-ai.github.io/langgraph/reference/prebuilt/?h=react#langgraph.prebuilt.chat_agent_executor.create_react_agent
-        tools = [tool_scrape_amazon_reviews, tool_scrape_amazon_products]
+        tools = [tool_get_prompt_for_amazon_product_list_plain_url, tool_scrape_amazon_reviews, tool_scrape_amazon_products]
         graph = create_react_agent(llm, tools, response_format=AgentStructuredOutput, prompt=SYSTEM_PROMPT)
 
         inputs: dict = {'messages': [('user', query)]}
