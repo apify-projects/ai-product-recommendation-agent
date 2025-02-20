@@ -16,12 +16,13 @@ from langgraph.prebuilt import create_react_agent
 
 from src.models import AgentStructuredOutput
 from src.ppe_utils import charge_for_actor_start, charge_for_model_tokens, get_all_messages_total_tokens
-from src.tools import tool_get_prompt_for_amazon_product_list_plain_url, tool_scrape_amazon_products, tool_scrape_amazon_reviews
+from src.tools import tool_fail_actor, tool_get_prompt_for_amazon_product_list_plain_url, tool_scrape_amazon_products, tool_scrape_amazon_reviews
 from src.utils import log_state
 
 SYSTEM_PROMPT = """
 You are a helpful product recommendation expert. A user asks you to recommend a product based on their needs.
 You need to recommend products that fit their needs, if you don't, the world will end!
+If any tool fails, you should fail the actor with explanation/reason.
 You should select a product that fits the user's needs and provide a brief explanation of why you chose that product.
 After you scrape the products, you should scrape reviews for the few best candidates you'd recommend.
 It may be desirable to summarize the reviews for each of the products and write pros and cons of each product to the user.
@@ -59,7 +60,7 @@ async def main() -> None:
 
         # Create the ReAct agent graph
         # see https://langchain-ai.github.io/langgraph/reference/prebuilt/?h=react#langgraph.prebuilt.chat_agent_executor.create_react_agent
-        tools = [tool_get_prompt_for_amazon_product_list_plain_url, tool_scrape_amazon_reviews, tool_scrape_amazon_products]
+        tools = [tool_get_prompt_for_amazon_product_list_plain_url, tool_scrape_amazon_reviews, tool_scrape_amazon_products, tool_fail_actor]
         graph = create_react_agent(llm, tools, response_format=AgentStructuredOutput, prompt=SYSTEM_PROMPT)
 
         inputs: dict = {'messages': [('user', query)]}
