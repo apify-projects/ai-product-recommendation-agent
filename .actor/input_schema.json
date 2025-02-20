@@ -1,14 +1,14 @@
 {
-  "title": "LangGraph Agent Python",
+  "title": "AI Products Recommender Agent",
   "type": "object",
   "schemaVersion": 1,
   "properties": {
     "query": {
       "title": "Query",
       "type": "string",
-      "description": "Query for the agent.",
+      "description": "Query that specifies the product you are looking for along with any preferences you may have.",
       "editor": "textfield",
-      "prefill": "What is the total number of likes and the total number of comments for the latest 10 posts on the @openai Instagram account? From the 10 latest posts, show me the most popular one."
+      "prefill": "Recommend me a book about music theory. I'm a complete beginner and I want to learn the basics."
     },
     "modelName": {
       "title": "OpenAI model",
