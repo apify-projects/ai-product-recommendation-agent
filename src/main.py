@@ -92,8 +92,8 @@ async def main() -> None:
 
         # Push results to the key-value store and dataset
         store = await Actor.open_key_value_store()
-        await store.set_value('response.txt', last_message)
-        Actor.log.info('Saved the "response.txt" file into the key-value store!')
+        await store.set_value('response.md', last_message, 'text/markdown')
+        Actor.log.info('Saved the "response.md" file into the key-value store!')
 
         await Actor.push_data(
             {
