@@ -27,6 +27,7 @@ After you scrape the products, you should scrape reviews for the few best candid
 It may be desirable to summarize the reviews for each of the products and write pros and cons of each product to the user.
 Write the summary along the description of the product.
 The user needs to get some recommendation from you at the end, don't just list some products!
+Don't mention anything like 'If you have further questions or need more options, let me know!' there won't be any further questions.
 """
 
 
