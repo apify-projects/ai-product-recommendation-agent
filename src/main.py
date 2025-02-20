@@ -17,7 +17,7 @@ from langgraph.prebuilt import create_react_agent
 from src.models import AgentStructuredOutput
 from src.ppe_utils import charge_for_actor_start, charge_for_model_tokens, get_all_messages_total_tokens
 from src.tools import tool_get_prompt_for_amazon_product_list_plain_url, tool_scrape_amazon_products, tool_scrape_amazon_reviews
-from src.utils import log_state
+from src.utils import log_state, transform_output
 
 SYSTEM_PROMPT = """
 You are a helpful product recommendation expert. A user asks you to recommend a product based on their needs.
@@ -96,9 +96,6 @@ async def main() -> None:
         Actor.log.info('Saved the "response.md" file into the key-value store!')
 
         await Actor.push_data(
-            {
-                'response': last_message,
-                'structured_response': response.dict() if response else {},
-            }
+            transform_output(response, last_message),
         )
         Actor.log.info('Pushed the into the dataset!')

@@ -1,24 +1,73 @@
 {
-  "actorSpecification": 1,
-  "views": {
-    "overview": {
-      "title": "Overview",
-      "transformation": {
-        "fields": ["response", "structured_response"]
-      },
-      "display": {
-        "component": "table",
+    "actorSpecification": 1,
+    "fields": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
         "properties": {
-          "response": {
-            "label": "Response",
-            "format": "text"
-          },
-          "structured_response": {
-            "label": "Structured Response",
-            "format": "object"
-          }
+            "title": {
+                "type": "string",
+                "description": "The title of the product."
+            },
+            "brand": {
+                "type": "string",
+                "description": "The brand of the product.",
+                "nullable": true
+            },
+            "stars": {
+                "type": "number",
+                "format": "float",
+                "description": "The rating of the product.",
+                "nullable": true
+            },
+            "description": {
+                "type": "string",
+                "description": "The description of the product.",
+                "nullable": true
+            },
+            "price": {
+                "type": "object",
+                "description": "The price of the product.",
+                "nullable": true,
+                "properties": {
+                    "value": {
+                        "type": "number",
+                        "format": "float",
+                        "nullable": true
+                    },
+                    "currency": {
+                        "type": "string",
+                        "description": "The currency of the product.",
+                        "nullable": true
+                    }
+                }
+            },
+            "url": {
+                "type": "string",
+                "format": "uri",
+                "description": "The URL of the product.",
+                "nullable": true
+            },
+            "response": {
+                "type": "string",
+                "description": "The response of the agent."
+            }
+        },
+        "required": ["title", "response"]
+    },
+    "views": {
+        "overview": {
+            "title": "Overview",
+            "transformation": {
+                "fields": [
+                    "title",
+                    "brand",
+                    "stars",
+                    "description",
+                    "url",
+                    "price"
+                ],
+                "omit": ["response"]
+            }
         }
-      }
     }
-  }
 }
