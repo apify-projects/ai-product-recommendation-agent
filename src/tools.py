@@ -13,7 +13,7 @@ from apify import Actor
 from langchain_core.tools import tool
 from pydantic import BaseModel
 
-from src.models import AmazonProduct, AmazonProductPrice
+from src.models import AmazonProduct, AmazonProductPrice, AmazonReview
 
 class CategoryOrProductUrl(BaseModel):
     """
@@ -26,18 +26,15 @@ class CategoryOrProductUrl(BaseModel):
     url: str
     method: str
 
-
-@tool
-def tool_calculator_sum(numbers: list[int]) -> int:
-    """Tool to calculate the sum of a list of numbers.
-
-    Args:
-        numbers (list[int]): List of numbers to sum.
-
-    Returns:
-        int: Sum of the numbers.
+class ProductUrl(BaseModel):
     """
-    return sum(numbers)
+    Pydantic model for a product URL to scrape.
+
+    url: The URL to scrape. Example: https://www.amazon.com/dp/B08P3K8H5P
+    method: The HTTP method to use. Example: GET
+    """
+    url: str
+    method: str
 
 
 @tool
@@ -49,7 +46,7 @@ async def tool_scrape_amazon_products(category_or_product_urls: list[CategoryOrP
         max_items_per_start_url (int, optional): Maximum number of items per start url to scrape. Defaults to 50.
 
     Returns:
-        list[InstagramPost]: List of Instagram posts scraped from the profile.
+        list[AmazonProduct]: List of Amazon products scraped.
 
     Raises:
         RuntimeError: If the Actor fails to start.
@@ -89,3 +86,42 @@ async def tool_scrape_amazon_products(category_or_product_urls: list[CategoryOrP
         )
 
     return products
+
+@tool
+async def tool_scrape_amazon_reviews(product_urls: list[ProductUrl], max_reviews: int = 50) -> list[AmazonReview]:
+    """
+    Tool to scrape Amazon reviews.
+
+    Args:
+        product_urls (list[ProductUrl]): List of product URLs to scrape.
+        max_reviews (int, optional): Maximum number of reviews to scrape per product. Defaults to 50.
+
+    Returns:
+        list[AmazonReview]: List of Amazon reviews scraped from the product URLs.
+
+    """
+    run_input = {
+        "productUrls": [item.model_dump() for item in product_urls],
+        "maxReviews": max_reviews,
+    }
+    if not (run := await Actor.apify_client.actor('junglee/amazon-reviews-scraper').call(run_input=run_input)):
+        msg = 'Failed to start the Actor junglee/amazon-reviews-scraper'
+        raise RuntimeError(msg)
+
+    dataset_id = run['defaultDatasetId']
+    dataset_items: list[dict] = (await Actor.apify_client.dataset(dataset_id).list_items()).items
+    reviews: list[AmazonProduct] = []
+    for item in dataset_items:
+        ratingScore: float = item.get('ratingScore')
+        reviewTitle: str = item.get('reviewTitle')
+        reviewDescription: str = item.get('reviewDescription')
+
+        reviews.append(
+            AmazonReview(
+                ratingScore=ratingScore,
+                reviewTitle=reviewTitle,
+                reviewDescription=reviewDescription,
+            )
+        )
+
+    return reviews

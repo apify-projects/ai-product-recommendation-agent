@@ -13,27 +13,6 @@ class AmazonProductPrice(BaseModel):
     value: float
     currency: str
 
-
-class InstagramPost(BaseModel):
-    """Instagram Post Pydantic model.
-
-    Returned as a structured output by the `tool_scrape_instagram_profile_posts` tool.
-
-    url: The URL of the post.
-    likes: The number of likes on the post.
-    comments: The number of comments on the post.
-    timestamp: The timestamp when the post was published.
-    caption: The post caption.
-    alt: The post alt text.
-    """
-
-    url: str
-    likes: int
-    comments: int
-    timestamp: str
-    caption: str | None = None
-    alt: str | None = None
-
 class AmazonProduct(BaseModel):
     """Amazon Product Pydantic model.
 
@@ -53,18 +32,25 @@ class AmazonProduct(BaseModel):
     price: AmazonProductPrice | None = None
     url: str | None = None
 
+class AmazonReview(BaseModel):
+    """Amazon Review Pydantic model.
 
+    Returned as a structured output by the `tool_scrape_amazon_reviews` tool.
+
+    ratingScore: The rating score of the review.
+    reviewTitle: The title of the review.
+    reviewDescription: The description of the review.
+    """
+    ratingScore: float
+    reviewTitle: str
+    reviewDescription: str
 
 class AgentStructuredOutput(BaseModel):
     """Structured output for the ReAct agent.
 
     Returned as a structured output by the ReAct agent.
 
-    total_likes: The total number of likes on the most popular posts.
-    total_comments: The total number of comments on the most popular posts.
-    most_popular_posts: A list of the most popular posts.
+    recommended_products: List of recommended Amazon products.
     """
 
-    total_likes: int
-    total_comments: int
-    most_popular_posts: list[InstagramPost]
+    recommended_products: list[AmazonProduct]

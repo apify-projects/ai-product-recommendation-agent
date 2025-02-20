@@ -16,13 +16,17 @@ from langgraph.prebuilt import create_react_agent
 
 from src.models import AgentStructuredOutput
 from src.ppe_utils import charge_for_actor_start, charge_for_model_tokens, get_all_messages_total_tokens
-from src.tools import tool_calculator_sum, tool_scrape_amazon_products
+from src.tools import tool_scrape_amazon_products, tool_scrape_amazon_reviews
 from src.utils import log_state
 
 SYSTEM_PROMPT = """
 You are a helpful product recommendation expert. A user asks you to recommend a product based on their needs.
+You need to recommend products that fit their needs, if you don't, the world will end!
 You should select a product that fits the user's needs and provide a brief explanation of why you chose that product.
-It may be desirable to suggest a few products and list their pros and cons.
+After you scrape the products, you should scrape reviews for the few best candidates you'd recommend.
+It may be desirable to summarize the reviews for each of the products and write pros and cons of each product to the user.
+Write the summary along the description of the product.
+The user needs to get some recommendation from you at the end, don't just list some products!
 """
 
 
@@ -54,7 +58,7 @@ async def main() -> None:
 
         # Create the ReAct agent graph
         # see https://langchain-ai.github.io/langgraph/reference/prebuilt/?h=react#langgraph.prebuilt.chat_agent_executor.create_react_agent
-        tools = [tool_calculator_sum, tool_scrape_amazon_products]
+        tools = [tool_scrape_amazon_reviews, tool_scrape_amazon_products]
         graph = create_react_agent(llm, tools, response_format=AgentStructuredOutput, prompt=SYSTEM_PROMPT)
 
         inputs: dict = {'messages': [('user', query)]}
