@@ -33,4 +33,4 @@ def log_state(state: dict) -> None:
             Actor.log.debug('Args: %s', tool_call['args'])
 
 def get_openai_amazon_url_message(inputText: str) -> str:
-    return f"Generate an Amazon search URL for {inputText}, including relevant filters like price if mentioned. Respond with only the plain URL—no extra text."
+    return f"Generate an Amazon search URL for {inputText}, including relevant filters like price if mentioned. Respond with this data structure: [\{{url: only the plain URL—no extra text, method: 'GET'}}]"

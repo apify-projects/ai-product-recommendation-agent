@@ -16,7 +16,7 @@ from langgraph.prebuilt import create_react_agent
 
 from src.models import AgentStructuredOutput
 from src.ppe_utils import charge_for_actor_start, charge_for_model_tokens, get_all_messages_total_tokens
-from src.tools import tool_scrape_amazon_products, tool_scrape_amazon_reviews
+from src.tools import tool_scrape_amazon_products, tool_scrape_amazon_reviews, tool_url_to_category_or_product_url
 from src.utils import log_state, get_openai_amazon_url_message, log_state
 
 SYSTEM_PROMPT = """

@@ -137,4 +137,5 @@ def tool_url_to_category_or_product_url(url: str) -> CategoryOrProductUrl:
     Returns:
         CategoryOrProductUrl: The CategoryOrProductUrl instance.
     """
-    return CategoryOrProductUrl(url=url, method='GET')
+    print(CategoryOrProductUrl(url=url, method='GET'))
+    return [CategoryOrProductUrl(url=url, method='GET')]
