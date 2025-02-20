@@ -80,7 +80,7 @@ async def tool_scrape_amazon_products(category_or_product_urls: list[CategoryOrP
                 brand=brand,
                 stars=stars,
                 description=description,
-                price=AmazonProductPrice(**price),
+                price=AmazonProductPrice(**price) if price else None,
                 url=url,
             )
         )
@@ -134,6 +134,6 @@ def tool_get_prompt_for_amazon_product_list_plain_url(query: str) -> str:
     Args:
         query (str): User query.
     Returns:
-        str: Prompt for the Amazon product list URL. 
+        str: Prompt for the Amazon product list URL.
     """
     return f"Generate an Amazon search URL for {query}, including relevant filters like price if mentioned."
