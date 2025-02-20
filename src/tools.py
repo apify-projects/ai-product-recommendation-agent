@@ -11,8 +11,20 @@ from __future__ import annotations
 
 from apify import Actor
 from langchain_core.tools import tool
+from pydantic import BaseModel
 
-from src.models import InstagramPost
+from src.models import AmazonProduct, AmazonProductPrice
+
+class CategoryOrProductUrl(BaseModel):
+    """
+    Pydantic model for a category or
+    product URL to scrape.
+
+    url: The URL to scrape. Example: https://www.amazon.com/s?k=laptop&low-price=400&high-price=600
+    method: The HTTP method to use. Example: GET
+    """
+    url: str
+    method: str
 
 
 @tool
@@ -29,12 +41,12 @@ def tool_calculator_sum(numbers: list[int]) -> int:
 
 
 @tool
-async def tool_scrape_instagram_profile_posts(handle: str, max_posts: int = 30) -> list[InstagramPost]:
-    """Tool to scrape Instagram profile posts.
+async def tool_scrape_amazon_products(category_or_product_urls: list[CategoryOrProductUrl], max_items_per_start_url: int = 50) -> list[AmazonProduct]:
+    """Tool to scrape Amazon products.
 
     Args:
-        handle (str): Instagram handle of the profile to scrape (without the '@' symbol).
-        max_posts (int, optional): Maximum number of posts to scrape. Defaults to 30.
+        category_or_product_urls (list[CategoryOrProductUrl]): List of category or product URLs to scrape. At least one URL must be provided.
+        max_items_per_start_url (int, optional): Maximum number of items per start url to scrape. Defaults to 50.
 
     Returns:
         list[InstagramPost]: List of Instagram posts scraped from the profile.
@@ -42,41 +54,38 @@ async def tool_scrape_instagram_profile_posts(handle: str, max_posts: int = 30) 
     Raises:
         RuntimeError: If the Actor fails to start.
     """
+    if len(category_or_product_urls) < 1:
+        raise ValueError('At least one category or product URL must be provided.')
+
     run_input = {
-        'directUrls': [f'https://www.instagram.com/{handle}/'],
-        'resultsLimit': max_posts,
-        'resultsType': 'posts',
-        'searchLimit': 1,
+        "categoryOrProductUrls": [item.model_dump() for item in category_or_product_urls],
+        "maxItemsPerStartUrl": max_items_per_start_url,
+        "maxOffers": 1,
     }
-    if not (run := await Actor.apify_client.actor('apify/instagram-scraper').call(run_input=run_input)):
-        msg = 'Failed to start the Actor apify/instagram-scraper'
+    if not (run := await Actor.apify_client.actor('junglee/Amazon-crawler').call(run_input=run_input)):
+        msg = 'Failed to start the Actor junglee/Amazon-crawler'
         raise RuntimeError(msg)
 
     dataset_id = run['defaultDatasetId']
     dataset_items: list[dict] = (await Actor.apify_client.dataset(dataset_id).list_items()).items
-    posts: list[InstagramPost] = []
+    products: list[AmazonProduct] = []
     for item in dataset_items:
+        title: str | None = item.get('title')
+        brand: str | None = item.get('brand')
+        stars: int | None = item.get('stars')
+        description: str | None = item.get('description')
+        price: dict | None = item.get('price')
         url: str | None = item.get('url')
-        caption: str | None = item.get('caption')
-        alt: str | None = item.get('alt')
-        likes: int | None = item.get('likesCount')
-        comments: int | None = item.get('commentsCount')
-        timestamp: str | None = item.get('timestamp')
 
-        # only include posts with all required fields
-        if not url or not likes or not comments or not timestamp:
-            Actor.log.warning('Skipping post with missing fields: %s', item)
-            continue
-
-        posts.append(
-            InstagramPost(
+        products.append(
+            AmazonProduct(
+                title=title,
+                brand=brand,
+                stars=stars,
+                description=description,
+                price=AmazonProductPrice(**price),
                 url=url,
-                likes=likes,
-                comments=comments,
-                timestamp=timestamp,
-                caption=caption,
-                alt=alt,
             )
         )
 
-    return posts
+    return products

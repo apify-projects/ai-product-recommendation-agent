@@ -16,14 +16,14 @@ from langgraph.prebuilt import create_react_agent
 
 from src.models import AgentStructuredOutput
 from src.ppe_utils import charge_for_actor_start, charge_for_model_tokens, get_all_messages_total_tokens
-from src.tools import tool_calculator_sum, tool_scrape_instagram_profile_posts
+from src.tools import tool_calculator_sum, tool_scrape_amazon_products
 from src.utils import log_state
 
-# fallback input is provided only for testing, you need to delete this line
-fallback_input = {
-    'query': 'This is fallback test query, do not nothing and ignore it.',
-    'modelName': 'gpt-4o-mini',
-}
+SYSTEM_PROMPT = """
+You are a helpful product recommendation expert. A user asks you to recommend a product based on their needs.
+You should select a product that fits the user's needs and provide a brief explanation of why you chose that product.
+It may be desirable to suggest a few products and list their pros and cons.
+"""
 
 
 async def main() -> None:
@@ -39,8 +39,6 @@ async def main() -> None:
     async with Actor:
         # Handle input
         actor_input = await Actor.get_input()
-        # fallback input is provided only for testing, you need to delete this line
-        actor_input = {**fallback_input, **actor_input}
 
         query = actor_input.get('query')
         model_name = actor_input.get('modelName', 'gpt-4o-mini')
@@ -56,8 +54,8 @@ async def main() -> None:
 
         # Create the ReAct agent graph
         # see https://langchain-ai.github.io/langgraph/reference/prebuilt/?h=react#langgraph.prebuilt.chat_agent_executor.create_react_agent
-        tools = [tool_calculator_sum, tool_scrape_instagram_profile_posts]
-        graph = create_react_agent(llm, tools, response_format=AgentStructuredOutput)
+        tools = [tool_calculator_sum, tool_scrape_amazon_products]
+        graph = create_react_agent(llm, tools, response_format=AgentStructuredOutput, prompt=SYSTEM_PROMPT)
 
         inputs: dict = {'messages': [('user', query)]}
         response: AgentStructuredOutput | None = None

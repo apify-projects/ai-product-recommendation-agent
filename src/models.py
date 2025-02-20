@@ -9,6 +9,10 @@ from __future__ import annotations
 
 from pydantic import BaseModel
 
+class AmazonProductPrice(BaseModel):
+    value: float
+    currency: str
+
 
 class InstagramPost(BaseModel):
     """Instagram Post Pydantic model.
@@ -29,6 +33,26 @@ class InstagramPost(BaseModel):
     timestamp: str
     caption: str | None = None
     alt: str | None = None
+
+class AmazonProduct(BaseModel):
+    """Amazon Product Pydantic model.
+
+    Returned as a structured output by the `tool_scrape_amazon_products` tool.
+
+    title: The title of the product.
+    brand: The brand of the product.
+    stars: The rating of the product.
+    description: The description of the product.
+    price: The price of the product.
+    url: The URL of the product.
+    """
+    title: str
+    brand: str | None = None
+    stars: float | None = None
+    description: str | None = None
+    price: AmazonProductPrice | None = None
+    url: str | None = None
+
 
 
 class AgentStructuredOutput(BaseModel):
