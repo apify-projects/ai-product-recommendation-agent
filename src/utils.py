@@ -1,6 +1,8 @@
 from apify import Actor
 from langchain_core.messages import ToolMessage
 
+from src.models import AgentStructuredOutput
+
 
 def log_state(state: dict) -> None:
     """Logs the state of the graph.
@@ -31,3 +33,14 @@ def log_state(state: dict) -> None:
             Actor.log.debug('-------- Tool Call --------')
             Actor.log.debug('Tool: %s', tool_call['name'])
             Actor.log.debug('Args: %s', tool_call['args'])
+
+def transform_output(response: AgentStructuredOutput | None, last_message: str):
+    if response is None:
+        return [{'response': last_message}]
+    return [
+        {
+            **rp.dict(include=['title', 'brand', 'stars', 'description', 'price', 'url', 'reviewSummary']),
+            'response': last_message,
+        }
+        for rp in response.recommended_products
+    ]

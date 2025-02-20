@@ -136,4 +136,13 @@ def tool_get_prompt_for_amazon_product_list_plain_url(query: str) -> str:
     Returns:
         str: Prompt for the Amazon product list URL.
     """
-    return f"Generate an Amazon search URL for {query}, including relevant filters like price if mentioned."
+    return f"Generate an Amazon search URL for {query}, simplifying it to relevant product keywords. Include filters like price if mentioned."
+
+@tool
+async def tool_fail_actor(reason: str) -> None:
+    """Tool to fail the actor.
+    
+    Args:
+        reason (str): Reason for failing the actor.
+    """
+    await Actor.fail(reason)
