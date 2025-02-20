@@ -12,7 +12,7 @@
 	"meta": {
 		"templateId": "python-langgraph"
 	},
-	"enviromentVariables": {
+	"environmentVariables": {
 		"OPENAI_API_KEY": "@openai-api-key"
 	},
 	"dockerfile": "./Dockerfile"

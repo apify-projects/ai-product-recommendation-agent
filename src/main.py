@@ -17,7 +17,7 @@ from langgraph.prebuilt import create_react_agent
 from src.models import AgentStructuredOutput
 from src.ppe_utils import charge_for_actor_start, charge_for_model_tokens, get_all_messages_total_tokens
 from src.tools import tool_scrape_amazon_products, tool_scrape_amazon_reviews
-from src.utils import log_state
+from src.utils import log_state, get_openai_amazon_url_message, log_state
 
 SYSTEM_PROMPT = """
 You are a helpful product recommendation expert. A user asks you to recommend a product based on their needs.
@@ -61,7 +61,7 @@ async def main() -> None:
         tools = [tool_scrape_amazon_reviews, tool_scrape_amazon_products]
         graph = create_react_agent(llm, tools, response_format=AgentStructuredOutput, prompt=SYSTEM_PROMPT)
 
-        inputs: dict = {'messages': [('user', query)]}
+        inputs: dict = {'messages': [('user', get_openai_amazon_url_message(query))]}
         response: AgentStructuredOutput | None = None
         last_message: str | None = None
         last_state: dict | None = None
