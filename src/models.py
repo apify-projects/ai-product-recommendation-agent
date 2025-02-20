@@ -45,6 +45,15 @@ class AmazonReview(BaseModel):
     reviewTitle: str
     reviewDescription: str
 
+class RecommendedProduct(AmazonProduct, BaseModel):
+    """Recommended Product Pydantic model.
+
+    Returned as a structured output by the ReAct agent.
+
+    reviewSummary: Longer summary of the reviews for this product.
+    """
+    reviewSummary: str | None = None
+
 class AgentStructuredOutput(BaseModel):
     """Structured output for the ReAct agent.
 
@@ -53,4 +62,4 @@ class AgentStructuredOutput(BaseModel):
     recommended_products: List of recommended Amazon products.
     """
 
-    recommended_products: list[AmazonProduct]
+    recommended_products: list[RecommendedProduct]
