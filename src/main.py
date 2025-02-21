@@ -124,8 +124,12 @@ async def main() -> None:
             transform_output(response, last_message),
         )
         Actor.log.info('Pushed the into the dataset!')
+
         html_public_url = await store.get_public_url('response.html')
+        status_message = f'Success! Please open {html_public_url} to read the recommendation!'
+
+        Actor.log.info(status_message)
         await Actor.set_status_message(
-            f'Success! Please open {html_public_url} to read the recommendation!',
+            status_message,
             is_terminal=True,
         )
