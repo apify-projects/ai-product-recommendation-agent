@@ -5,62 +5,75 @@ It will automatically suggest products matching your criteria and it will also c
 
 You only need to provide a query about the product you're looking for and the Agent takes care of the rest!
 
+## Development
+
+If you are interested in the development check out the [GitHub Repository](https://github.com/apify-projects/ai-product-recommendation-agent.git).
+Feel free to contribute!
+
 ## Examples
+
 Example queries:
-- "Recommend me a book about music theory. I'm a complete beginner and I want to learn the basics."
-- "I want to buy a laptop for about 1000$, what are the best options? I want the laptop to have great battery life. and have less than 15 inches screen size."
-- "I am looking for some nice decor for my living room. I like modern and minimalistic styles. The color should be white. Can you recommend me some products?"
+
+-   "Recommend me a book about music theory. I'm a complete beginner and I want to learn the basics."
+-   "I want to buy a laptop for about 1000$, what are the best options? I want the laptop to have great battery life. and have less than 15 inches screen size."
+-   "I am looking for some nice decor for my living room. I like modern and minimalistic styles. The color should be white. Can you recommend me some products?"
 
 The agent will produce outputs to both dataset and key-value-store. A URL to the final HTML with the recommendation will be given in the terminal status message.
 
 ### Example query with its respective output
+
 #### Input
+
 ```json
 {
-	"query": "Recommend me a book about music theory. I'm a complete beginner and I want to learn the basics.",
-	"modelName": "gpt-4o",
-	"debug": false
+    "query": "Recommend me a book about music theory. I'm a complete beginner and I want to learn the basics.",
+    "modelName": "gpt-4o",
+    "debug": false
 }
 ```
 
 #### Output
+
 ```md
 Here are three highly recommended books for learning music theory as a beginner:
 
 1. **[The Essential Guide to Music Theory: Everything You Need to Learn the Basics and Beyond](https://www.amazon.com/dp/B0CHL7M2M5)**
-   - **Price**: $13.69
-   - **Rating**: 4.8 stars
-   - **Summary**: This book is known for its accessibility and clear presentation of music theory fundamentals. It is highly praised for its logical structure and engaging style, making it suitable for both newcomers and those refreshing their knowledge.
-   - **Pros**:
-     - Simple and effective organization.
-     - Includes valuable exercises to enhance learning.
-     - Engaging and comprehensive for beginners.
-   - **Cons**:
-     - Some reviewers wished for more advanced content, which might not be an issue for beginners.
+
+    - **Price**: $13.69
+    - **Rating**: 4.8 stars
+    - **Summary**: This book is known for its accessibility and clear presentation of music theory fundamentals. It is highly praised for its logical structure and engaging style, making it suitable for both newcomers and those refreshing their knowledge.
+    - **Pros**:
+        - Simple and effective organization.
+        - Includes valuable exercises to enhance learning.
+        - Engaging and comprehensive for beginners.
+    - **Cons**:
+        - Some reviewers wished for more advanced content, which might not be an issue for beginners.
 
 2. **[Music Theory for Beginners: A Pocket-Size Guide for Aspiring Musicians of Any Instrument](https://www.amazon.com/dp/B0CWXGNXTY)**
-   - **Price**: $10.99
-   - **Rating**: 4.8 stars
-   - **Summary**: This guide demystifies music theory and provides an inspiring understanding of music. It's noted for its entertaining and creative approach, making the subject fun to explore.
-   - **Pros**:
-     - Easy to understand, with creative explanations.
-     - Suitable for any musical instrument.
-     - Covers fundamental aspects with entertaining examples.
-   - **Cons**:
-     - Some formatting issues reported.
-     - More oriented towards classical music, which might be irrelevant to some popular genres.
+
+    - **Price**: $10.99
+    - **Rating**: 4.8 stars
+    - **Summary**: This guide demystifies music theory and provides an inspiring understanding of music. It's noted for its entertaining and creative approach, making the subject fun to explore.
+    - **Pros**:
+        - Easy to understand, with creative explanations.
+        - Suitable for any musical instrument.
+        - Covers fundamental aspects with entertaining examples.
+    - **Cons**:
+        - Some formatting issues reported.
+        - More oriented towards classical music, which might be irrelevant to some popular genres.
 
 3. **[Accelerated Piano Adventures for the Older Beginner - Theory Book 1](https://www.amazon.com/dp/1616772069)**
-   - **Price**: $7.50
-   - **Rating**: 4.8 stars
-   - **Summary**: While this book is specifically focused on piano, it's a great introductory text for those with no musical background. It is highly recommended by both instructors and learners for its simplicity and efficacy in teaching music theory basics.
-   - **Pros**:
-     - Simple and effective for complete beginners.
-     - Lauded for slowing down complex concepts so they can be truly understood.
-   - **Cons**:
-     - Primarily focused on piano, so might not be comprehensive for other instruments.
+    - **Price**: $7.50
+    - **Rating**: 4.8 stars
+    - **Summary**: While this book is specifically focused on piano, it's a great introductory text for those with no musical background. It is highly recommended by both instructors and learners for its simplicity and efficacy in teaching music theory basics.
+    - **Pros**:
+        - Simple and effective for complete beginners.
+        - Lauded for slowing down complex concepts so they can be truly understood.
+    - **Cons**:
+        - Primarily focused on piano, so might not be comprehensive for other instruments.
 
 ### Recommendation:
+
 For a general introduction to music theory, I recommend "The Essential Guide to Music Theory: Everything You Need to Learn the Basics and Beyond" due to its comprehensive and engaging style that caters to both complete beginners and those revisiting theory basics. If you're interested in piano-specific theory, "Accelerated Piano Adventures for the Older Beginner - Theory Book 1" is an excellent choice.
 ```
 
