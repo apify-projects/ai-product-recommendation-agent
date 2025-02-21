@@ -58,6 +58,8 @@ async def tool_scrape_amazon_products(
     Raises:
         RuntimeError: If the Actor fails to start.
     """
+    Actor.log.info('Scraping Amazon products...')
+
     if len(category_or_product_urls) < 1:
         raise ValueError('At least one category or product URL must be provided.')
 
@@ -102,6 +104,8 @@ async def tool_scrape_amazon_products(
             )
         )
 
+    Actor.log.info('Amazon products scraped')
+
     return products
 
 
@@ -120,6 +124,8 @@ async def tool_scrape_amazon_reviews(
         list[AmazonReview]: List of Amazon reviews scraped from the product URLs.
 
     """
+    Actor.log.info('Scraping Amazon reviews for products...')
+
     run_input = {
         'productUrls': [item.model_dump() for item in product_urls],
         'maxReviews': max_reviews,
@@ -149,6 +155,8 @@ async def tool_scrape_amazon_reviews(
                 reviewDescription=reviewDescription,
             )
         )
+    
+    Actor.log.info('Amazon reviews scraped')
 
     return reviews
 
