@@ -15,8 +15,16 @@ from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
 
 from src.models import AgentStructuredOutput
-from src.ppe_utils import charge_for_actor_start, charge_for_model_tokens, get_all_messages_total_tokens
-from src.tools import tool_get_prompt_for_amazon_product_list_plain_url, tool_scrape_amazon_products, tool_scrape_amazon_reviews
+from src.ppe_utils import (
+    charge_for_actor_start,
+    charge_for_model_tokens,
+    get_all_messages_total_tokens,
+)
+from src.tools import (
+    tool_get_prompt_for_amazon_product_list_plain_url,
+    tool_scrape_amazon_products,
+    tool_scrape_amazon_reviews,
+)
 from src.utils import log_state, get_html, transform_output
 
 SYSTEM_PROMPT = """
@@ -61,8 +69,14 @@ async def main() -> None:
 
         # Create the ReAct agent graph
         # see https://langchain-ai.github.io/langgraph/reference/prebuilt/?h=react#langgraph.prebuilt.chat_agent_executor.create_react_agent
-        tools = [tool_get_prompt_for_amazon_product_list_plain_url, tool_scrape_amazon_reviews, tool_scrape_amazon_products]
-        graph = create_react_agent(llm, tools, response_format=AgentStructuredOutput, prompt=SYSTEM_PROMPT)
+        tools = [
+            tool_get_prompt_for_amazon_product_list_plain_url,
+            tool_scrape_amazon_reviews,
+            tool_scrape_amazon_products,
+        ]
+        graph = create_react_agent(
+            llm, tools, response_format=AgentStructuredOutput, prompt=SYSTEM_PROMPT
+        )
 
         inputs: dict = {'messages': [('user', query)]}
         response: AgentStructuredOutput | None = None
@@ -78,17 +92,23 @@ async def main() -> None:
 
         if not response or not last_message or not last_state:
             Actor.log.error('Failed to get a response from the ReAct agent!')
-            await Actor.fail(status_message='Failed to get a response from the ReAct agent!')
+            await Actor.fail(
+                status_message='Failed to get a response from the ReAct agent!'
+            )
             return
 
         if not (messages := last_state.get('messages')):
             Actor.log.error('Failed to get messages from the ReAct agent!')
-            await Actor.fail(status_message='Failed to get messages from the ReAct agent!')
+            await Actor.fail(
+                status_message='Failed to get messages from the ReAct agent!'
+            )
             return
 
         if not (total_tokens := get_all_messages_total_tokens(messages)):
             Actor.log.error('Failed to calculate the total number of tokens used!')
-            await Actor.fail(status_message='Failed to calculate the total number of tokens used!')
+            await Actor.fail(
+                status_message='Failed to calculate the total number of tokens used!'
+            )
             return
 
         await charge_for_model_tokens(model_name, total_tokens)
@@ -97,10 +117,15 @@ async def main() -> None:
         store = await Actor.open_key_value_store()
         await store.set_value('response.md', last_message, 'text/markdown')
         await store.set_value('response.html', get_html(last_message), 'text/html')
-        Actor.log.info('Saved the "response.md" and "response.html" files into the key-value store!')
+        Actor.log.info(
+            'Saved the "response.md" and "response.html" files into the key-value store!'
+        )
         await Actor.push_data(
             transform_output(response, last_message),
         )
         Actor.log.info('Pushed the into the dataset!')
         html_public_url = await store.get_public_url('response.html')
-        await Actor.set_status_message(f'Success! You can read the recommendation at {html_public_url}', is_terminal=True)
+        await Actor.set_status_message(
+            f'Success! You can read the recommendation at {html_public_url}',
+            is_terminal=True,
+        )

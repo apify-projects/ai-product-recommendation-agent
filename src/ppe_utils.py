@@ -28,8 +28,14 @@ def get_all_messages_total_tokens(messages: list[BaseMessage]) -> int:
         # Skip messages that are not AIMessages
         if not isinstance(message, AIMessage):
             continue
-        if not (tokens := message.response_metadata.get('token_usage', {}).get('total_tokens')):
-            raise ValueError(f'Missing "token_usage.total_tokens" in response metadata: {message.response_metadata}')
+        if not (
+            tokens := message.response_metadata.get('token_usage', {}).get(
+                'total_tokens'
+            )
+        ):
+            raise ValueError(
+                f'Missing "token_usage.total_tokens" in response metadata: {message.response_metadata}'
+            )
 
         sum_tokens += tokens
 
@@ -46,8 +52,12 @@ async def charge_for_model_tokens(model_name: str, tokens: int) -> None:
     Raises:
         ValueError: If the model name is unknown.
     """
-    tokens_hundreds = int((Decimal(tokens) / Decimal('1e2')).to_integral_value(rounding=ROUND_CEILING))
-    Actor.log.debug(f'Charging for {tokens} tokens ({tokens_hundreds} hundreds) for model {model_name}')
+    tokens_hundreds = int(
+        (Decimal(tokens) / Decimal('1e2')).to_integral_value(rounding=ROUND_CEILING)
+    )
+    Actor.log.debug(
+        f'Charging for {tokens} tokens ({tokens_hundreds} hundreds) for model {model_name}'
+    )
 
     if not (event_name := MODEL_PPE_EVENT.get(model_name)):
         raise ValueError(f'Unknown model name: {model_name}')

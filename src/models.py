@@ -9,14 +9,17 @@ from __future__ import annotations
 
 from pydantic import BaseModel
 
+
 class AmazonProductPrice(BaseModel):
     """Amazon Product Price Pydantic model.
 
     value: The price value.
     currency: The currency of the price.
     """
+
     value: float
     currency: str
+
 
 class AmazonProduct(BaseModel):
     """Amazon Product Pydantic model.
@@ -30,6 +33,7 @@ class AmazonProduct(BaseModel):
     price: The price of the product.
     url: The URL of the product.
     """
+
     title: str
     brand: str | None = None
     stars: float | None = None
@@ -37,6 +41,7 @@ class AmazonProduct(BaseModel):
     price: AmazonProductPrice | None = None
     url: str | None = None
     features: list[str] | None = None
+
 
 class AmazonReview(BaseModel):
     """Amazon Review Pydantic model.
@@ -47,9 +52,11 @@ class AmazonReview(BaseModel):
     reviewTitle: The title of the review.
     reviewDescription: The description of the review.
     """
+
     ratingScore: float
     reviewTitle: str
     reviewDescription: str
+
 
 class RecommendedProduct(AmazonProduct, BaseModel):
     """Recommended Product Pydantic model.
@@ -58,7 +65,9 @@ class RecommendedProduct(AmazonProduct, BaseModel):
 
     reviewSummary: Longer summary of the reviews for this product.
     """
+
     reviewSummary: str | None = None
+
 
 class AgentStructuredOutput(BaseModel):
     """Structured output for the ReAct agent.

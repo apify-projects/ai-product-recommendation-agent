@@ -34,6 +34,7 @@ def log_state(state: dict) -> None:
             Actor.log.debug('Tool: %s', tool_call['name'])
             Actor.log.debug('Args: %s', tool_call['args'])
 
+
 def transform_output(response: AgentStructuredOutput | None, last_message: str):
     """Transforms the structured output into a list of dictionaries.
 
@@ -47,11 +48,22 @@ def transform_output(response: AgentStructuredOutput | None, last_message: str):
         return [{'response': last_message}]
     return [
         {
-            **rp.model_dump(include=['title', 'brand', 'stars', 'description', 'price', 'url', 'reviewSummary']),
+            **rp.model_dump(
+                include=[
+                    'title',
+                    'brand',
+                    'stars',
+                    'description',
+                    'price',
+                    'url',
+                    'reviewSummary',
+                ]
+            ),
             'response': last_message,
         }
         for rp in response.recommended_products
     ]
+
 
 def get_html(markdown_response: str) -> str:
     """Wraps the markdown response in a HTML with some styles.
@@ -64,7 +76,7 @@ def get_html(markdown_response: str) -> str:
     Returns:
         str: The HTML response.
     """
-    css = '''
+    css = """
         <style>
             @import 'https://fonts.googleapis.com/css?family=Open+Sans';
 
@@ -137,8 +149,8 @@ def get_html(markdown_response: str) -> str:
                 }
             }
         </style>
-        '''
-    html = f'''
+    """
+    html = f"""
         <!DOCTYPE html>
         <html>
         <head>
@@ -153,5 +165,5 @@ def get_html(markdown_response: str) -> str:
             <script type="module" src="https://md-block.verou.me/md-block.js"></script>
         </body>
         </html>
-        '''
+        """
     return html
