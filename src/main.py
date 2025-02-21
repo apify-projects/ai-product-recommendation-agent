@@ -103,4 +103,4 @@ async def main() -> None:
         )
         Actor.log.info('Pushed the into the dataset!')
         html_public_url = await store.get_public_url('response.html')
-        await Actor.set_status_message(f'Success! You can read the recommendation at {html_public_url}')
+        await Actor.set_status_message(f'Success! You can read the recommendation at {html_public_url}', is_terminal=True)
