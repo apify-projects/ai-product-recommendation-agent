@@ -87,7 +87,7 @@ async def tool_scrape_amazon_products(
         title: str | None = item.get('title')
         brand: str | None = item.get('brand')
         stars: int | None = item.get('stars')
-        description: str | None = item.get('description')
+        description: str | None = item.get('description') # Not used since amazon-crawler returns only null
         price: dict | None = item.get('price')
         url: str | None = item.get('url')
         features: list[str] | None = item.get('features')
@@ -97,7 +97,6 @@ async def tool_scrape_amazon_products(
                 title=title,
                 brand=brand,
                 stars=stars,
-                description=description,
                 price=AmazonProductPrice(**price) if price else None,
                 url=url,
                 features=features,

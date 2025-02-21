@@ -19,11 +19,6 @@
                 "description": "The rating of the product.",
                 "nullable": true
             },
-            "description": {
-                "type": "string",
-                "description": "The description of the product.",
-                "nullable": true
-            },
             "price": {
                 "type": "object",
                 "description": "The price of the product.",
@@ -66,7 +61,6 @@
                     "title",
                     "brand",
                     "stars",
-                    "description",
                     "url",
                     "price",
                     "reviewSummary"
