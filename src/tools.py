@@ -38,12 +38,12 @@ class ProductUrl(BaseModel):
 
 
 @tool
-async def tool_scrape_amazon_products(category_or_product_urls: list[CategoryOrProductUrl], max_items_per_start_url: int = 50) -> list[AmazonProduct]:
+async def tool_scrape_amazon_products(category_or_product_urls: list[CategoryOrProductUrl], max_products_per_start_url: int = 50) -> list[AmazonProduct]:
     """Tool to scrape Amazon products.
 
     Args:
         category_or_product_urls (list[CategoryOrProductUrl]): List of category or product URLs to scrape. At least one URL must be provided.
-        max_items_per_start_url (int, optional): Maximum number of items per start url to scrape. Defaults to 50.
+        max_products_per_start_url (int, optional): Maximum number of products per start url to scrape. Defaults to 50.
 
     Returns:
         list[AmazonProduct]: List of Amazon products scraped.
@@ -56,7 +56,7 @@ async def tool_scrape_amazon_products(category_or_product_urls: list[CategoryOrP
 
     run_input = {
         "categoryOrProductUrls": [item.model_dump() for item in category_or_product_urls],
-        "maxItemsPerStartUrl": max_items_per_start_url,
+        "maxItemsPerStartUrl": max_products_per_start_url,
         "maxOffers": 1,
     }
     if not (run := await Actor.apify_client.actor('junglee/Amazon-crawler').call(run_input=run_input)):
@@ -73,6 +73,7 @@ async def tool_scrape_amazon_products(category_or_product_urls: list[CategoryOrP
         description: str | None = item.get('description')
         price: dict | None = item.get('price')
         url: str | None = item.get('url')
+        features: list[str] | None = item.get('features')
 
         products.append(
             AmazonProduct(
@@ -82,6 +83,7 @@ async def tool_scrape_amazon_products(category_or_product_urls: list[CategoryOrP
                 description=description,
                 price=AmazonProductPrice(**price) if price else None,
                 url=url,
+                features=features,
             )
         )
 
@@ -90,7 +92,7 @@ async def tool_scrape_amazon_products(category_or_product_urls: list[CategoryOrP
 @tool
 async def tool_scrape_amazon_reviews(product_urls: list[ProductUrl], max_reviews: int = 50) -> list[AmazonReview]:
     """
-    Tool to scrape Amazon reviews.
+    Tool to scrape Amazon reviews for specific product URLs.
 
     Args:
         product_urls (list[ProductUrl]): List of product URLs to scrape.
@@ -137,12 +139,3 @@ def tool_get_prompt_for_amazon_product_list_plain_url(query: str) -> str:
         str: Prompt for the Amazon product list URL.
     """
     return f"Generate an Amazon search URL for {query}, simplifying it to relevant product keywords. Include filters like price if mentioned."
-
-@tool
-async def tool_fail_actor(reason: str) -> None:
-    """Tool to fail the actor.
-    
-    Args:
-        reason (str): Reason for failing the actor.
-    """
-    await Actor.fail(reason)

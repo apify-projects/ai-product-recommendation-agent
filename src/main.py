@@ -16,8 +16,8 @@ from langgraph.prebuilt import create_react_agent
 
 from src.models import AgentStructuredOutput
 from src.ppe_utils import charge_for_actor_start, charge_for_model_tokens, get_all_messages_total_tokens
-from src.tools import tool_fail_actor, tool_get_prompt_for_amazon_product_list_plain_url, tool_scrape_amazon_products, tool_scrape_amazon_reviews
-from src.utils import log_state
+from src.tools import tool_get_prompt_for_amazon_product_list_plain_url, tool_scrape_amazon_products, tool_scrape_amazon_reviews
+from src.utils import log_state, get_html
 
 SYSTEM_PROMPT = """
 You are a helpful product recommendation expert. A user asks you to recommend a product based on their needs.
@@ -29,6 +29,7 @@ It may be desirable to summarize the reviews for each of the products and write 
 Write the summary along the description of the product.
 The user needs to get some recommendation from you at the end, don't just list some products!
 Don't mention anything like 'If you have further questions or need more options, let me know!' there won't be any further questions.
+If the user asks about anything unrelated to product recommendation, you should politely tell them that you can only help with product recommendations.
 """
 
 
@@ -60,7 +61,7 @@ async def main() -> None:
 
         # Create the ReAct agent graph
         # see https://langchain-ai.github.io/langgraph/reference/prebuilt/?h=react#langgraph.prebuilt.chat_agent_executor.create_react_agent
-        tools = [tool_get_prompt_for_amazon_product_list_plain_url, tool_scrape_amazon_reviews, tool_scrape_amazon_products, tool_fail_actor]
+        tools = [tool_get_prompt_for_amazon_product_list_plain_url, tool_scrape_amazon_reviews, tool_scrape_amazon_products]
         graph = create_react_agent(llm, tools, response_format=AgentStructuredOutput, prompt=SYSTEM_PROMPT)
 
         inputs: dict = {'messages': [('user', query)]}
@@ -95,12 +96,15 @@ async def main() -> None:
         # Push results to the key-value store and dataset
         store = await Actor.open_key_value_store()
         await store.set_value('response.md', last_message, 'text/markdown')
-        Actor.log.info('Saved the "response.md" file into the key-value store!')
+        await store.set_value('response.html', get_html(last_message), 'text/html')
+        html_public_url = await store.get_public_url('response.html')
+        Actor.set_status_message(f'Success! You can read the recommendation at {html_public_url}')
+        Actor.log.info('Saved the "response.md" and "response.html" files into the key-value store!')
 
         await Actor.push_data(
             {
                 'response': last_message,
-                'structured_response': response.dict() if response else {},
+                'structured_response': response.model_dump() if response else {},
             }
         )
         Actor.log.info('Pushed the into the dataset!')

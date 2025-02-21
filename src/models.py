@@ -10,6 +10,11 @@ from __future__ import annotations
 from pydantic import BaseModel
 
 class AmazonProductPrice(BaseModel):
+    """Amazon Product Price Pydantic model.
+
+    value: The price value.
+    currency: The currency of the price.
+    """
     value: float
     currency: str
 
@@ -31,6 +36,7 @@ class AmazonProduct(BaseModel):
     description: str | None = None
     price: AmazonProductPrice | None = None
     url: str | None = None
+    features: list[str] | None = None
 
 class AmazonReview(BaseModel):
     """Amazon Review Pydantic model.
