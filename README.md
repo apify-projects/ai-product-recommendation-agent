@@ -1,119 +1,92 @@
-# LangGraph Amazon Product & Review Analysis Actor
+# AI Product Recommendation Agent
 
-This actor uses LangGraph with an OpenAI agent to orchestrate a workflow that finds the best Amazon product for a given query. It leverages two Apify actors: the `junglee/Amazon-crawler` (product scraper) and the `junglee/amazon-reviews-scraper` (review scraper). The agent intelligently constructs search URLs, extracts product data, gathers reviews, and analyzes them to identify the top product.
+The AI Product Recommendation agent enables you to get product recommendations using just a simple prompt.
+It will automatically suggest products matching your criteria and it will also consider reviews of those products to give you the best possible options.
+
+You only need to provide a query about the product you're looking for and the Agent takes care of the rest!
+
+## Examples
+Example queries:
+- "Recommend me a book about music theory. I'm a complete beginner and I want to learn the basics."
+- "I want to buy a laptop for about 1000$, what are the best options? I want the laptop to have great battery life. and have less than 15 inches screen size."
+- "I am looking for some nice decor for my living room. I like modern and minimalistic styles. The color should be white. Can you recommend me some products?"
+
+The agent will produce outputs to both dataset and key-value-store. A URL to the final HTML with the recommendation will be given in the terminal status message.
+
+### Example query with its respective output
+#### Input
+```json
+{
+	"query": "Recommend me a book about music theory. I'm a complete beginner and I want to learn the basics.",
+	"modelName": "gpt-4o",
+	"debug": false
+}
+```
+
+#### Output
+```md
+Here are three highly recommended books for learning music theory as a beginner:
+
+1. **[The Essential Guide to Music Theory: Everything You Need to Learn the Basics and Beyond](https://www.amazon.com/dp/B0CHL7M2M5)**
+   - **Price**: $13.69
+   - **Rating**: 4.8 stars
+   - **Summary**: This book is known for its accessibility and clear presentation of music theory fundamentals. It is highly praised for its logical structure and engaging style, making it suitable for both newcomers and those refreshing their knowledge.
+   - **Pros**:
+     - Simple and effective organization.
+     - Includes valuable exercises to enhance learning.
+     - Engaging and comprehensive for beginners.
+   - **Cons**:
+     - Some reviewers wished for more advanced content, which might not be an issue for beginners.
+
+2. **[Music Theory for Beginners: A Pocket-Size Guide for Aspiring Musicians of Any Instrument](https://www.amazon.com/dp/B0CWXGNXTY)**
+   - **Price**: $10.99
+   - **Rating**: 4.8 stars
+   - **Summary**: This guide demystifies music theory and provides an inspiring understanding of music. It's noted for its entertaining and creative approach, making the subject fun to explore.
+   - **Pros**:
+     - Easy to understand, with creative explanations.
+     - Suitable for any musical instrument.
+     - Covers fundamental aspects with entertaining examples.
+   - **Cons**:
+     - Some formatting issues reported.
+     - More oriented towards classical music, which might be irrelevant to some popular genres.
+
+3. **[Accelerated Piano Adventures for the Older Beginner - Theory Book 1](https://www.amazon.com/dp/1616772069)**
+   - **Price**: $7.50
+   - **Rating**: 4.8 stars
+   - **Summary**: While this book is specifically focused on piano, it's a great introductory text for those with no musical background. It is highly recommended by both instructors and learners for its simplicity and efficacy in teaching music theory basics.
+   - **Pros**:
+     - Simple and effective for complete beginners.
+     - Lauded for slowing down complex concepts so they can be truly understood.
+   - **Cons**:
+     - Primarily focused on piano, so might not be comprehensive for other instruments.
+
+### Recommendation:
+For a general introduction to music theory, I recommend "The Essential Guide to Music Theory: Everything You Need to Learn the Basics and Beyond" due to its comprehensive and engaging style that caters to both complete beginners and those revisiting theory basics. If you're interested in piano-specific theory, "Accelerated Piano Adventures for the Older Beginner - Theory Book 1" is an excellent choice.
+```
 
 ## How it works
 
-The actor receives a user query as input. An OpenAI agent within a LangGraph loop performs the following steps:
+The Actor receives a user query as input. An OpenAI agent within a LangGraph loop performs the following steps:
 
-1.  **URL Generation:** The agent uses the query to create a URL suitable for the `junglee/Amazon-crawler` actor. This might involve keyword manipulation, category selection, etc.
-2.  **Product Scraping:** The agent calls the `junglee/Amazon-crawler` actor with the generated URL. This actor scrapes product data from Amazon, including titles, brands, star ratings, descriptions, prices, URLs, and image URLs. Approximately 50 products are scraped.
-3.  **Review Scraping:** For the top products identified by the agent, the agent calls the `junglee/amazon-reviews-scraper` actor to retrieve reviews. Approximately 50 reviews per product are scraped.
+1.  **URL Generation:** The agent uses the query to create a URL suitable for the `junglee/Amazon-crawler` Actor. This might involve keyword manipulation, category selection, etc.
+2.  **Product Scraping:** The agent calls the `junglee/Amazon-crawler` Actor with the generated URL. This Actor scrapes product data from Amazon, including titles, brands, star ratings, descriptions, prices, URLs, and image URLs.
+3.  **Review Scraping:** For the top products identified by the agent, the agent calls the `junglee/amazon-reviews-scraper` Actor to retrieve reviews.
 4.  **Review Analysis:** The agent processes the scraped reviews to determine the overall sentiment and identify the best product based on user feedback. The agent uses the following prompt for product recommendations:
 
     ```
     You are a helpful product recommendation expert. A user asks you to recommend a product based on their needs.
     You need to recommend products that fit their needs, if you don't, the world will end!
+    If any tool fails, you should fail the Actor with explanation/reason.
     You should select a product that fits the user's needs and provide a brief explanation of why you chose that product.
     After you scrape the products, you should scrape reviews for the few best candidates you'd recommend.
     It may be desirable to summarize the reviews for each of the products and write pros and cons of each product to the user.
     Write the summary along the description of the product.
     The user needs to get some recommendation from you at the end, don't just list some products!
     Don't mention anything like 'If you have further questions or need more options, let me know!' there won't be any further questions.
+    If the user asks about anything unrelated to product recommendation, you should politely tell them that you can only help with product recommendations.
     ```
 
-5.  **Output:** The actor outputs the details of the best products, including their titles, brands, star ratings, descriptions, prices, URLs, response generated by the LLM, and a summary of the review analysis. This information is stored in the Apify Dataset. The "best" product is determined by the LLM based on the input query.
-
-## How to use
-
-1.  **Apify Account:** Ensure you have an Apify account.
-2.  **Actor Installation:** This actor can be deployed from this repository. You can either link the repository to Apify or push the code directly.
-3.  **Input:** Provide the product query as input to the actor.
-4.  **Run:** Run the actor on the Apify platform.
-5.  **Output:** Retrieve the results from the Apify Dataset.
-
-## Included features
-
--   **LangGraph Integration:** Uses LangGraph for workflow orchestration and agent management.
--   **OpenAI Agent:** Employs an OpenAI agent for decision-making and URL generation.
--   **Apify SDK for Python:** Built using the Apify Python SDK.
--   **`junglee/Amazon-crawler` Integration:** Scrapes product data from Amazon.
--   **`junglee/amazon-reviews-scraper` Integration:** Scrapes product reviews from Amazon.
--   **Dataset Output:** Stores the best product information in an Apify Dataset.
--   **Key-value store output:** Stores intermediate results and agent thoughts in key-value store.
--   **Input Schema:** Uses an input schema for validation.
-
-## Resources
-
--   [LangGraph documentation](https://langchain-ai.github.io/langgraph/tutorials/introduction/)
--   [LangChain documentation](https://python.langchain.com/docs/introduction/)
--   [Apify Python SDK documentation](https://docs.apify.com/sdk/python/)
--   [`junglee/Amazon-crawler` actor](https://apify.com/junglee/Amazon-crawler)
--   [`junglee/amazon-reviews-scraper` actor](https://apify.com/junglee/amazon-reviews-scraper)
-
-## Getting started
-
-```bash
-apify run # Run locally
-apify push # Deploy to Apify
-```
-
-## Input
-
-```json
-{
-    "query": "suggest me best laptop that is not too expensive but has really good stats and price under $600"
-}
-```
-
-## Output
-
-The actor outputs data to the Apify Dataset. Each item in the dataset contains the following fields:
-
-| Field           | Type   | Description                                                             |
-| --------------- | ------ | ----------------------------------------------------------------------- |
-| `title`         | String | The title of the product.                                               |
-| `brand`         | String | The brand of the product.                                               |
-| `stars`         | Number | The average star rating of the product.                                 |
-| `description`   | String | The product description.                                                |
-| `price`         | Object | The product price, containing `value` (Number) and `currency` (String). |
-| `url`           | String | The URL of the product page.                                            |
-| `response`      | String | The LLM generated message for the query.                                |
-| `reviewSummary` | String | A summary of the review analysis.                                       |
-
-## Example Output
-
-```json
-[
-    {
-        "title": "Lenovo IdeaPad 1 Student Laptop",
-        "brand": "Lenovo",
-        "stars": 4.4,
-        "description": "15.6\" FHD Display, Intel Dual Core Processor, 16GB DDR4 RAM, 256GB PCIe SSD, WiFi 6, Bluetooth 5.2, Type-C, Cloud Grey, Windows 11 Pro",
-        "price": {
-            "value": 299,
-            "currency": "$"
-        },
-        "url": "https://www.amazon.com/dp/B0DSPVNWWK",
-        "reviewSummary": "A great budget laptop for college-level work. Fast business machine with good overall performance. Lightweight and easy to use.",
-        "response": "Here are some of the best laptops under $600 that come with solid specifications and positive reviews:\n\n### 1. **Lenovo IdeaPad 1**\n- **Price:** $299.00\n- **Specs:** 15.6\" FHD Display, Intel Dual Core Processor, 16GB RAM, 256GB PCIe SSD, WiFi 6, Bluetooth 5.2, Windows 11 Pro\n- **Rating:** 4.4/5\n- **Link:** [View on Amazon](https://www.amazon.com/dp/B0DSPVNWWK)\n  \n**Pros:**\n  - Affordable price\n  - Ample RAM and storage for everyday tasks\n  - Good battery life and performance for college-level work\n\n**Cons:**\n  - Lacks a backlit keyboard\n  - Average screen viewing angles\n\n**Review Summary:** Users praise the Lenovo IdeaPad for its performance and value for money, perfect for students and light gaming. \n\n---\n\n### 2. **Acer Aspire 3 A315-24P**\n- **Price:** $299.99\n- **Specs:** 15.6\" Full HD IPS Display, AMD Ryzen 3 7320U Quad-Core Processor, AMD Radeon Graphics, 8GB RAM, 128GB NVMe SSD, Wi-Fi 6, Windows 11 Home\n- **Rating:** 4.2/5\n- **Link:** [View on Amazon](https://www.amazon.com/dp/B0BS4BP8FB)\n\n**Pros:**\n  - Good display quality (IPS)\n  - Good performance for everyday tasks and casual gaming\n  - Sleek design\n\n**Cons:**\n  - Limited storage space\n  - Average build quality\n\n**Review Summary:** Many appreciate the Acer Aspire for its graphics and speed, making it suitable for schoolwork and regular use.\n\n---\n\n### 3. **HP Pavilion**\n- **Price:** $599.00\n- **Specs:** 15.6\" FHD, Intel Core 8-Core CPU, 32GB RAM, 1TB Storage\n- **Rating:** 4.3/5\n- **Link:** [View on Amazon](https://www.amazon.com/dp/B0DN7YC7R8)\n\n**Pros:**\n  - High RAM and storage capacity\n  - Good performance for multitasking\n  - Fingerprint reader for added security\n\n**Cons:**\n  - Heavier than competitors\n  - Battery life can be less than expected\n\n**Review Summary:** This model is highly recommended for users who need a powerful laptop for multitasking and storage. \n\n---\n\n### 4. **HP Victus Gaming Laptop**\n- **Price:** $575.00\n- **Specs:** 15.6” FHD IPS 144Hz, Intel 8-core i5-12450H, 16GB RAM, 512GB SSD, GeForce RTX 3050\n- **Rating:** 4.6/5\n- **Link:** [View on Amazon](https://www.amazon.com/dp/B0DGSMZ54J)\n\n**Pros:**\n  - Great for gaming and demanding applications\n  - Excellent display with 144Hz refresh rate\n  - Good build quality\n\n**Cons:**\n  - Heavy battery drain during gaming sessions\n  Limited battery life under heavy use\n\n**Review Summary:** The HP Victus is praised for its gaming capabilities and performance but is noted for shorter battery life while gaming.\n\n---\n\n### 5. **Lenovo V15**\n- **Price:** $499.00\n- **Specs:** 15.6\" FHD Display, AMD Ryzen 5 5500U, 16GB RAM, 512GB SSD\n- **Rating:** 4.3/5\n- **Link:** [View on Amazon](https://www.amazon.com/dp/B0CK9JSM3G)\n\n**Pros:**\n  - Solid performance for its price\n  - Good battery life\n  - Stylish design\n\n**Cons:**\n  - Basic design may not appeal to everyone\n  - The display could be better in terms of brightness\n\n**Review Summary:** Users find this laptop to be a balanced option for general use and work, providing a decent performance at a reasonable price.\n\n---\n\nOverall, the **Lenovo IdeaPad 1** and **Acer Aspire 3** stand out for their affordability while maintaining good specs for everyday tasks. For a more gaming-focused experience, the **HP Victus** provides great value within your budget."
-    }
-    //... other products
-]
-```
-
-## Documentation reference
-
--   [Apify Platform documentation](https://docs.apify.com/platform)
--   [Join our developer community on Discord](https://discord.com/invite/jyEM2PRvMU)
-
-## Limitations
-
--   Relies on the stability and availability of the `junglee/Amazon-crawler` and `junglee/amazon-reviews-scraper` actors.
--   The quality of the review analysis depends on the complexity of the agent and the available review data.
--   OpenAI API key is required and should be provided as an environment variable (`OPENAI_API_KEY`).
--   Amazon's website structure may change, potentially breaking the scrapers.
--   The actor run will fail with error if `junglee/Amazon-crawler` or `junglee/amazon-reviews-scraper` or OpenAI API will fail.
+5.  **Output:** The Actor outputs the details of the best products, including their titles, brands, star ratings, descriptions, prices, URLs, response generated by the LLM, and a summary of the review analysis. This information is stored in the Apify Dataset. The "best" product is determined by the LLM based on the input query. The Actor also stores Markdown and HTML files with the recommendation in the key-value store.
 
 ## Cost Considerations
 
