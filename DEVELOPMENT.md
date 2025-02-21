@@ -1,6 +1,7 @@
 # Development
 
 ## Getting started
+
 First, clone this repository.
 
 ```bash
@@ -25,7 +26,6 @@ The actor outputs data to the Apify Dataset. Each item in the dataset contains t
 | `title`         | String | The title of the product.                                               |
 | `brand`         | String | The brand of the product.                                               |
 | `stars`         | Number | The average star rating of the product.                                 |
-| `description`   | String | The product description.                                                |
 | `price`         | Object | The product price, containing `value` (Number) and `currency` (String). |
 | `url`           | String | The URL of the product page.                                            |
 | `response`      | String | The LLM generated message for the query.                                |
@@ -39,7 +39,6 @@ The actor outputs data to the Apify Dataset. Each item in the dataset contains t
         "title": "Lenovo IdeaPad 1 Student Laptop",
         "brand": "Lenovo",
         "stars": 4.4,
-        "description": "15.6\" FHD Display, Intel Dual Core Processor, 16GB DDR4 RAM, 256GB PCIe SSD, WiFi 6, Bluetooth 5.2, Type-C, Cloud Grey, Windows 11 Pro",
         "price": {
             "value": 299,
             "currency": "$"
