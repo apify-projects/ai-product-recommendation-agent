@@ -17,7 +17,7 @@ from langgraph.prebuilt import create_react_agent
 from src.models import AgentStructuredOutput
 from src.ppe_utils import charge_for_actor_start, charge_for_model_tokens, get_all_messages_total_tokens
 from src.tools import tool_get_prompt_for_amazon_product_list_plain_url, tool_scrape_amazon_products, tool_scrape_amazon_reviews
-from src.utils import log_state, get_html
+from src.utils import log_state, get_html, transform_output
 
 SYSTEM_PROMPT = """
 You are a helpful product recommendation expert. A user asks you to recommend a product based on their needs.
@@ -97,14 +97,10 @@ async def main() -> None:
         store = await Actor.open_key_value_store()
         await store.set_value('response.md', last_message, 'text/markdown')
         await store.set_value('response.html', get_html(last_message), 'text/html')
-        html_public_url = await store.get_public_url('response.html')
-        Actor.set_status_message(f'Success! You can read the recommendation at {html_public_url}')
         Actor.log.info('Saved the "response.md" and "response.html" files into the key-value store!')
-
         await Actor.push_data(
-            {
-                'response': last_message,
-                'structured_response': response.model_dump() if response else {},
-            }
+            transform_output(response, last_message),
         )
         Actor.log.info('Pushed the into the dataset!')
+        html_public_url = await store.get_public_url('response.html')
+        await Actor.set_status_message(f'Success! You can read the recommendation at {html_public_url}')
