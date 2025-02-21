@@ -29,7 +29,6 @@ class AmazonProduct(BaseModel):
     title: The title of the product.
     brand: The brand of the product.
     stars: The rating of the product.
-    description: The description of the product.
     price: The price of the product.
     url: The URL of the product.
     """
@@ -37,7 +36,6 @@ class AmazonProduct(BaseModel):
     title: str
     brand: str | None = None
     stars: float | None = None
-    description: str | None = None
     price: AmazonProductPrice | None = None
     url: str | None = None
     features: list[str] | None = None
