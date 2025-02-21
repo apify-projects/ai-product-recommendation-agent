@@ -88,10 +88,6 @@ def get_html(markdown_response: str) -> str:
                 padding-bottom: 20px;
             }
 
-            p {
-                font-size: 16px;
-            }
-
             h1 {
                 font-size: 30px;
                 line-height: 34px;
