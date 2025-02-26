@@ -1,5 +1,7 @@
 # AI Product Recommendation Agent
 
+[![AI Product Recommendation Agent](https://apify.com/actor-badge?actor=matymar/ai-product-recommendation-agent)](https://apify.com/matymar/ai-product-recommendation-agent)
+
 The AI Product Recommendation agent enables you to get product recommendations using just a simple prompt.
 It will automatically suggest products matching your criteria and it will also consider reviews of those products to give you the best possible options.
 
